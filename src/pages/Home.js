@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
+import _ from 'lodash';
 
 
 const Home = () => {
@@ -8,6 +9,7 @@ const Home = () => {
     const [sortOrder, setSortOrder] = useState('asc');
     const [filterText, setFilterText] = useState('');
     const [filteredData, setFilteredData] = useState([]);
+    const [sortOrderTable, setSortOrderTable] = useState({ first: 'asc', last: 'asc', country: 'asc' });
 
     const columns = [
         { id: 'thumbnail', label: 'Foto', align: "center" },
@@ -26,7 +28,7 @@ const Home = () => {
             try {
                 const response = await fetch(url, options);
                 const data = await response.json();
-                console.log(data);
+                console.log("Datos consultados: ",data);
                 setData(data);
                 setRenderedData(data);
             } catch (error) {
@@ -40,11 +42,10 @@ const Home = () => {
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
-            const filteredCountries = renderedData.results.filter((row) =>{
+            const filteredCountries = renderedData.results.filter((row) => {
                 return row.location.country.toLowerCase().includes(filterText.toLowerCase())
             }
             );
-            console.log(filteredCountries)
             setFilteredData(filteredCountries);
         }, 500);
 
@@ -61,9 +62,6 @@ const Home = () => {
         setRenderedData({ ...renderedData, results: updatedData });
     }
 
-
-
-
     const setTableBgColor = () => {
         const table = tableRef.current;
 
@@ -77,7 +75,6 @@ const Home = () => {
             const comparison = a.location.country.localeCompare(b.location.country)
             return sortOrder === 'asc' ? comparison : -comparison;
         });
-        console.log(sortedData);
         setRenderedData({ ...sortedData, results: sortedData });
         setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
     };
@@ -85,6 +82,30 @@ const Home = () => {
     const restoreInitialState = () => {
         setRenderedData(data);
     }
+
+    const handleSortByColumn = (column) => {
+        const sortConfig = {
+          first: { field: 'name.first' },
+          last: { field: 'name.last' },
+          country: { field: 'location.country' },
+        };
+      
+        const { field } = sortConfig[column.id];
+        const comparison = (a, b) => {
+          const valueA = _.get(a, field);
+          const valueB = _.get(b, field);
+          return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+        };
+      
+        const sortedData = [...renderedData.results].sort(comparison);
+        setRenderedData({ ...renderedData, results: sortedData });
+      
+        const newSortOrderTable = {
+          ...sortOrderTable,
+          [column.id]: sortOrderTable[column.id] === 'asc' ? 'desc' : 'asc',
+        };
+        setSortOrderTable(newSortOrderTable);
+      };
 
     return (
         <section>
@@ -99,7 +120,7 @@ const Home = () => {
                     <tr>
                         {columns.map(column => {
                             return (
-                                <th id={column.id} key={column.id}>
+                                <th onClick={(e) => { handleSortByColumn(column) }} id={column.id} key={column.id}>
                                     {column.label}
                                 </th>
                             )
@@ -108,7 +129,7 @@ const Home = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredData.length > 0 && filterText !== "" ?
+                    {filterText !== "" ?
                         filteredData.map((row, index) => {
                             return (
                                 <tr key={index}>
