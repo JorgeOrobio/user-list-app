@@ -1,6 +1,6 @@
 # App Deployed on AWS Amplify
 
-This app is hosted on AWS amplify for making easy to review, here is the link 
+This app is hosted on AWS amplify for an easier review, here is the link
 
 [User List App](https://main.d1b74dfe2sbz3l.amplifyapp.com/)
 
