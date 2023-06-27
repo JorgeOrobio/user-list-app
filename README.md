@@ -1,3 +1,10 @@
+# App Deployed on AWS Amplify
+
+This app is hosted on AWS amplify for making easy to review, here is the link 
+
+[User List App](https://main.d1b74dfe2sbz3l.amplifyapp.com/)
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
